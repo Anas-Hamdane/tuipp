@@ -1,6 +1,16 @@
 #pragma once
 #include <iostream>
 
+#if defined(__unix__) || defined(__APPLE__)
+#include <sys/ioctl.h>
+#include <termios.h>
+#include <unistd.h>
+
+#elif defined(_WIN32) || defined(_WIN64)
+#include <windows.h>
+
+#endif
+
 namespace tuipp::terminal
 {
 inline void clear() { std::cout << "\x1b[2J\x1b[H"; }
@@ -22,9 +32,6 @@ inline void moveCursor(int x, int y)
 inline void flush() { std::cout.flush(); }
 
 #if defined(__unix__) || defined(__APPLE__)
-#include <sys/ioctl.h>
-#include <termios.h>
-#include <unistd.h>
 
 static struct termios original;
 inline void enableRawMode()
@@ -52,8 +59,6 @@ inline std::pair<int, int> size()
   return {static_cast<int>(ws.ws_col), static_cast<int>(ws.ws_row)};
 }
 #elif defined(_WIN32) || defined(_WIN64)
-#include <windows.h>
-
 static DWORD original;
 inline void enableRawMode()
 {
